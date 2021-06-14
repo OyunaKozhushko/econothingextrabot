@@ -1,8 +1,7 @@
 version: "3"
 
 services:
-  mongodb:
-    build: mongodb
+  db:
     image: "mongo:latest"
     volumes:
       - data:/data
