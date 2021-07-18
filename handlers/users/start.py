@@ -1,67 +1,69 @@
-from aiogram import types
-from aiogram.dispatcher.filters.builtin import CommandStart
-
+from aiogram import Dispatcher, types
+from aiogram.dispatcher import FSMContext
+from aiogram.dispatcher.filters import Text
+from utils.db_api.courses_config import courses_dict
 from loader import dp
-from data.config import *
-
-
-def create_new_user(telegram_id: int, chat_id: int):
-    try:
-        mongo_users.insert_one({'telegram_id': telegram_id,
-                                'chat_id': chat_id,
-                                'current_course': '',
-                                'current_day': 0,
-                                'passed_courses': []
-                                })
-    except:
-        return False
-    return True
-
-
-@dp.message_handler(lambda message: message.text == "Экологичный быт")
-async def any_text_message(message: types.Message):
-    telegram_id = message.from_user.id
-    query = {"telegram_id": telegram_id}
-    values = {"$set": {"current_course": "ecolife"}}
-    mongo_users.update_one(query, values)
-    mongo_courses.find({})
-    await message.answer("Ок! Отправляю предварительный материал. Завтра будет первый день!",
-                         reply_markup=types.ReplyKeyboardRemove())
-    await message.answer()
-
-
-@dp.message_handler(lambda message: message.text == "Осознанный гардероб")
-async def any_text_message(message: types.Message):
-    telegram_id = message.from_user.id
-    query = {"telegram_id": telegram_id}
-    values = {"$set": {"current_course": "wardrobe"}}
-    mongo_users.update_one(query, values)
-    await message.answer("Ок! Отправляю предварительный материал. Завтра будет первый день!",
-                         reply_markup=types.ReplyKeyboardRemove())
 
 
 # Хэндлер на команду /start
 @dp.message_handler(commands="start")
 async def cmd_start(message: types.Message):
+    await message.answer('привет!')
     first_name = message.from_user.first_name
     telegram_id = message.from_user.id
     chat_id = message.chat.id
-    query = {"telegram_id": telegram_id}
-    if mongo_users.count_documents(query) == 0 & ~message.from_user.is_bot:
-        if create_new_user(telegram_id, chat_id):
-            await message.answer(f"Привет! Рад знакомству, {first_name}! Я бот проекта Ничего лишнего. Давай играть!")
+    res = await dp.storage.get_data(chat=chat_id, user=telegram_id)
+    await message.answer(res)
+    if not res:
+        await dp.storage.set_data(chat=chat_id, user=telegram_id, data={'passed_courses': [],
+                                                                        'current_course': '',
+                                                                        'current_day': 0,
+                                                                        'last_homework': 0
+                                                                        })
+        # await dp.storage.set_state(chat=chat_id, user=telegram_id, state='free')
+        await message.answer(f"Привет! Рад знакомству, {first_name}! Я бот проекта Ничего лишнего."
+                             f"У меня есть три полезных курса, которые ты можешь пройти вместе со мной.")
+        await message.answer("""Первый - Экологичный быт. Он про то, как сделать ежедневные рутины более 
+        экологичными: запустим раздельный сбор отходов, разберемся с холодильником, шкафчиками на кухне и в ванной, 
+        познакомимся с натуральной косметикой и избавимся от лишнего в аптечке. А еще удет много идей по организации 
+        пространства! Второй - Осознанный гардероб. Просто удивительно, как массмаркет изменил наши отношения с 
+        одеждой. Теперь у нас очень много вещей - и очень мало среди них тех, которые мы носим. Второй курс поможет 
+        разобраться, какие нужными, а какие нет, как экологично избавиться от ненужного, и как осознанно разобрать 
+        свой гардероб Третий курс - Цифровой минимализм. Он поможет тебе очистить цифровое пространство вокруг себя и 
+        тратить меньше времени на такие залипательные вещи, как социальные сети, электронная почта и переписки  ни о 
+        чем.""")
+        keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
+        buttons = ["Экологичный быт", "Осознанный гардероб", "Цифровой минимализм"]
+        keyboard.add(*buttons)
+        await message.answer("Выбери курс, который хочешь начать", reply_markup=keyboard)
+    else:
+        if res['current_course'] == '':
+            await message.answer(f"Привет! Мы с тобой уже знакомы :)")
             keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
-            buttons = ["Экологичный быт", "Осознанный гардероб"]
+            buttons = ["Экологичный быт", "Осознанный гардероб", "Цифровой минимализм"]
             keyboard.add(*buttons)
             await message.answer("Выбери курс, который хочешь начать", reply_markup=keyboard)
-    else:
-        user_stat = mongo_users.find(query)
-        await message.answer(f"Привет! Я тебя знаю: ты сейчас проходишь курс!")
-    # await message.answer(f"Привет, {first_name}! Я бот проекта Ничего лишнего. Давай играть!")
 
 
-# Хэндлер на команду /stop
-@dp.message_handler(commands="stop")
-async def cmd_stop(message: types.Message):
-    # todo stop messaging
-    await message.answer("Я так больше не играю :(")
+@dp.message_handler(Text(equals=("Экологичный быт", "Осознанный гардероб", "Цифровой минимализм"),
+                         ignore_case=True), state=None)
+async def course_chosen(message: types.Message, state: FSMContext):
+    telegram_id = message.from_user.id
+    chat_id = message.chat.id
+    course_name = courses_dict.get(message.text)
+    await dp.storage.update_data(chat=chat_id, user=telegram_id, data={'passed_courses': [],
+                                                                       'current_course': course_name,
+                                                                       'current_day': 0,
+                                                                       'last_homework': 0
+                                                                       })
+    day_0 = await dp.storage.get_course_day(course_name, 0)
+    await message.answer("Отличный выбор! Отправляю вводный материал...\n" +
+                         day_0.get('title') + '\n' +
+                         day_0.get('description') + '\n' +
+                         day_0.get('url')
+                         )
+    await dp.storage.set_state(chat=chat_id, user=telegram_id, state='waiting_for_homework')
+    keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    buttons = ["Прочитано! Можно начинать :)"]
+    keyboard.add(*buttons)
+    await message.answer("Нажми на кнопку, когда прочтешь вводный материал!", reply_markup=keyboard)

@@ -4,6 +4,7 @@ This module has mongo storage for finite-state machine
 """
 
 from typing import Union, Dict, Optional, List, Tuple, AnyStr
+from utils.db_api import courses_config
 
 try:
     import pymongo
@@ -17,10 +18,12 @@ except ModuleNotFoundError as e:
 
 from aiogram.dispatcher.storage import BaseStorage
 
-STATE = 'aiogram_state'
-DATA = 'aiogram_data'
-BUCKET = 'aiogram_bucket'
+STATE = 'user_states'
+DATA = 'user_data'
+BUCKET = 'buckets'
 COLLECTIONS = (STATE, DATA, BUCKET)
+
+COURSES = 'courses'
 
 
 class MongoStorage(BaseStorage):
@@ -28,7 +31,7 @@ class MongoStorage(BaseStorage):
     Mongo-based storage for FSM.
     Usage:
     .. code-block:: python3
-        storage = MongoStorage(host='localhost', port=27017, db_name='aiogram_fsm')
+        storage = MongoStorage(host='localhost', port=27017, db_name='econothingextra_mongodb')
         dp = Dispatcher(bot, storage=storage)
     And need to close Mongo client connections when shutdown
     .. code-block:: python3
@@ -36,7 +39,7 @@ class MongoStorage(BaseStorage):
         await dp.storage.wait_closed()
     """
 
-    def __init__(self, host='localhost', port=27017, db_name='aiogram_fsm', uri=None,
+    def __init__(self, host='localhost', port=27017, db_name='econothingextra_mongodb', uri=None,
                  username=None, password=None, index=True, **kwargs):
         self._host = host
         self._port = port
@@ -50,6 +53,15 @@ class MongoStorage(BaseStorage):
         self._db: Optional[AsyncIOMotorDatabase] = None
 
         self._index = index
+
+    async def reset(self):
+        db = await self.get_db()
+        cols = db.list_collection_names()
+        print(db.list_collection_names())
+        for c in cols:
+            await db[c].drop()
+        db.create_collection(COURSES)
+        db[COURSES].insert_many(courses_config.courses)
 
     async def get_client(self) -> AsyncIOMotorClient:
         if isinstance(self._mongo, AsyncIOMotorClient):
@@ -211,3 +223,13 @@ class MongoStorage(BaseStorage):
             )
 
         return result
+
+    async def get_course_day(self, course_name: AnyStr, day: int):
+        db = await self.get_db()
+        days = await db[COURSES].find_one(filter={'name': course_name})
+        try:
+            return days.get('days')[day]
+        except IndexError as err:
+            raise err
+
+
