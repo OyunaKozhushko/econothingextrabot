@@ -4,7 +4,7 @@ This module has mongo storage for finite-state machine
 """
 
 from typing import Union, Dict, Optional, List, Tuple, AnyStr
-from . import cources_config
+from utils.db_api import courses_config
 
 try:
     import pymongo
@@ -53,6 +53,15 @@ class MongoStorage(BaseStorage):
         self._db: Optional[AsyncIOMotorDatabase] = None
 
         self._index = index
+
+    async def reset(self):
+        db = await self.get_db()
+        cols = db.list_collection_names()
+        print(db.list_collection_names())
+        for c in cols:
+            await db[c].drop()
+        db.create_collection(COURSES)
+        db[COURSES].insert_many(courses_config.courses)
 
     async def get_client(self) -> AsyncIOMotorClient:
         if isinstance(self._mongo, AsyncIOMotorClient):
@@ -215,18 +224,11 @@ class MongoStorage(BaseStorage):
 
         return result
 
-    # TODO проверить, что это нужно and it really works
-    def init_db(self):
+    async def get_course_day(self, course_name: AnyStr, day: int):
         db = await self.get_db()
-        if not db[COURSES]:
-            db[COURSES].insert_many(cources_config.courses)
-        return
-
-    def get_course_day(self, course_name: AnyStr, day: int):
-        db = await self.get_db()
-        days = db[COURSES].find_one(query={'name': course_name}).get('days')
+        days = await db[COURSES].find_one(filter={'name': course_name})
         try:
-            return days[day]
+            return days.get('days')[day]
         except IndexError as err:
             raise err
 

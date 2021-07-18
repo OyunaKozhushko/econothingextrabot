@@ -1,19 +1,17 @@
-from dbconfig import courses
+from courses_config import courses
 from pymongo import MongoClient
 
 client = MongoClient("mongodb://localhost:27017/")
-db = client['dbbot']
+db = client['econothingextra_mongodb']
 # client.drop_database('<DBNAME>')
 
 # create collections
-mongo_users = db['users']
-mongo_courses = db['courses']
+db['user_states'].drop()
+db['user_data'].drop()
 
-# mongo_users.drop()
-#
-# # insert info into mongo_courses
-# mongo_courses.drop()
-# mongo_courses.insert_many(courses)
+mongo_courses = db['courses']
+mongo_courses.drop()
+mongo_courses.insert_many(courses)
 
 print(db.list_collection_names())
 
@@ -21,6 +19,9 @@ print(client.list_database_names())
 
 
 query = {"telegram_id": 373085647}
-print(mongo_users.find_one(query))
+print(db['user_states'].find_one(query))
+
+query = {'name': 'wardrobe'}
+print(db['courses'].find_one(query))
 
 
