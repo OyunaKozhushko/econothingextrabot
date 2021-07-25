@@ -1,8 +1,10 @@
-from aiogram import Dispatcher, types
+from aiogram import types
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Text
+
 from utils.db_api.courses_config import courses_dict
 from loader import dp
+from states import StudyCourse
 
 
 # Хэндлер на команду /start
@@ -13,7 +15,6 @@ async def cmd_start(message: types.Message):
     telegram_id = message.from_user.id
     chat_id = message.chat.id
     res = await dp.storage.get_data(chat=chat_id, user=telegram_id)
-    await message.answer(res)
     if not res:
         await dp.storage.set_data(chat=chat_id, user=telegram_id, data={'passed_courses': [],
                                                                         'current_course': '',
@@ -23,15 +24,17 @@ async def cmd_start(message: types.Message):
         # await dp.storage.set_state(chat=chat_id, user=telegram_id, state='free')
         await message.answer(f"Привет! Рад знакомству, {first_name}! Я бот проекта Ничего лишнего."
                              f"У меня есть три полезных курса, которые ты можешь пройти вместе со мной.")
-        await message.answer("""Первый - Экологичный быт. Он про то, как сделать ежедневные рутины более 
+        await message.answer("""Первый - Экологичный быт. Он про то, как сделать ежедневные рутины более  
         экологичными: запустим раздельный сбор отходов, разберемся с холодильником, шкафчиками на кухне и в ванной, 
         познакомимся с натуральной косметикой и избавимся от лишнего в аптечке. А еще удет много идей по организации 
-        пространства! Второй - Осознанный гардероб. Просто удивительно, как массмаркет изменил наши отношения с 
+        пространства! 
+        Второй - Осознанный гардероб. Просто удивительно, как массмаркет изменил наши отношения с 
         одеждой. Теперь у нас очень много вещей - и очень мало среди них тех, которые мы носим. Второй курс поможет 
         разобраться, какие нужными, а какие нет, как экологично избавиться от ненужного, и как осознанно разобрать 
-        свой гардероб Третий курс - Цифровой минимализм. Он поможет тебе очистить цифровое пространство вокруг себя и 
-        тратить меньше времени на такие залипательные вещи, как социальные сети, электронная почта и переписки  ни о 
-        чем.""")
+        свой гардероб 
+        Третий курс - Цифровой минимализм. Он поможет тебе очистить цифровое пространство вокруг себя 
+        и тратить меньше времени на такие залипательные вещи, как социальные сети, электронная почта и переписки  ни 
+        о чем.""")
         keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
         buttons = ["Экологичный быт", "Осознанный гардероб", "Цифровой минимализм"]
         keyboard.add(*buttons)
@@ -62,8 +65,20 @@ async def course_chosen(message: types.Message, state: FSMContext):
                          day_0.get('description') + '\n' +
                          day_0.get('url')
                          )
-    await dp.storage.set_state(chat=chat_id, user=telegram_id, state='waiting_for_homework')
+    await dp.storage.set_state(chat=chat_id, user=telegram_id, state=StudyCourse.waiting_for_homework)
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    buttons = ["Прочитано! Можно начинать :)"]
+    buttons = ["Прочитано! Давай дальше :)"]
     keyboard.add(*buttons)
     await message.answer("Нажми на кнопку, когда прочтешь вводный материал!", reply_markup=keyboard)
+
+
+# @dp.message_handler(Text(equals="Прочитано! Давай дальше :)"), state=StudyCourse.waiting_for_homework)
+# async def course_chosen(message: types.Message):
+#     user_id = message.from_user.id
+#     chat_id = message.chat.id
+#     await dp.storage.set_state(chat=chat_id, user=user_id, state="waiting_for_task")
+#     await message.answer("Отлично! Завтра пришлю новый материал! Хорошего дня :)",
+#                          reply_markup=types.ReplyKeyboardRemove())
+
+
+
