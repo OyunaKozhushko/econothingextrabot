@@ -1,7 +1,5 @@
-from aiogram import Dispatcher, types
-from aiogram.dispatcher import FSMContext
+from aiogram import types
 from aiogram.dispatcher.filters import Text
-from utils.db_api.courses_config import courses_dict
 from loader import dp
 
 

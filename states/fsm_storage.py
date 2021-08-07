@@ -4,7 +4,7 @@ This module has mongo storage for finite-state machine
 """
 
 from typing import Union, Dict, Optional, List, Tuple, AnyStr
-from utils.db_api import courses_config
+
 
 try:
     import pymongo
@@ -22,8 +22,6 @@ STATE = 'user_states'
 DATA = 'user_data'
 BUCKET = 'buckets'
 COLLECTIONS = (STATE, DATA, BUCKET)
-
-COURSES = 'courses'
 
 
 class MongoStorage(BaseStorage):
@@ -53,15 +51,6 @@ class MongoStorage(BaseStorage):
         self._db: Optional[AsyncIOMotorDatabase] = None
 
         self._index = index
-
-    async def reset(self):
-        db = await self.get_db()
-        cols = db.list_collection_names()
-        print(db.list_collection_names())
-        for c in cols:
-            await db[c].drop()
-        db.create_collection(COURSES)
-        db[COURSES].insert_many(courses_config.courses)
 
     async def get_client(self) -> AsyncIOMotorClient:
         if isinstance(self._mongo, AsyncIOMotorClient):
@@ -224,12 +213,20 @@ class MongoStorage(BaseStorage):
 
         return result
 
-    async def get_course_day(self, course_name: AnyStr, day: int):
+    async def find_all_users(self):
         db = await self.get_db()
-        days = await db[COURSES].find_one(filter={'name': course_name})
-        try:
-            return days.get('days')[day]
-        except IndexError as err:
-            raise err
+        cursor = db[DATA].find()
+        users = []
+        print(cursor)
+        for document in await cursor.to_list(length=10):
+            print(document)
+            users.append({
+                'user': document.get('user'),
+                'chat': document.get('chat'),
+                'current_course': document.get('data').get('current_course'),
+                'current_day': document.get('data').get('current_day'),
+                'last_homework': document.get('data').get('last_homework')
+            })
+        return users
 
 

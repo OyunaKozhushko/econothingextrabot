@@ -4,11 +4,9 @@ courses_dict = {
     'Цифровой минимализм': 'digital'
 }
 
-courses = [
-    {
-        'name': 'wardrobe',
-        'days': [
-            {
+courses = {
+        'wardrobe': {
+            0: {
                 'title': 'День 0. Вступление.',
                 'description': """Первый материал - подготовительный. 
                                В нем я рассказываю о том, что такое осознанный гардероб, о чем будет курс, 
@@ -18,28 +16,25 @@ courses = [
                                """,
                 'url': 'https://nothing-extra.ru/wardrobe-intro/'
             },
-            {
+            1: {
                 'title': 'День 1. Диаграмма занятости',
                 'description': """привет
                 """,
                 'url': 'http://nothing-extra.ru/day1-diagram/'
             }
-        ]
-    },
-    {
-        'name': 'wardrobe',
-        'days': [
-            {
+        },
+    'ecolife': {
+            1: {
                 'title': 'day1',
                 'url': 'url1'
             },
-            {
+            2: {
                 'title': 'day2',
                 'url': 'url2'
             }
-        ]
     }
-]
+}
+
 """
 http://nothing-extra.ru/day2-visualization/
 http://nothing-extra.ru/day3-capsule-and-base/
