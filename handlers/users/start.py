@@ -5,7 +5,7 @@ from aiogram.dispatcher.filters import Text
 from utils.courses_config import courses_dict
 from loader import dp
 from states import StudyCourse
-
+from utils.courses_config import courses
 
 # Хэндлер на команду /start
 @dp.message_handler(commands="start")
@@ -18,10 +18,8 @@ async def cmd_start(message: types.Message):
     if not res:
         await dp.storage.set_data(chat=chat_id, user=telegram_id, data={'passed_courses': [],
                                                                         'current_course': '',
-                                                                        'current_day': 0,
-                                                                        'last_homework': 0
+                                                                        'current_day': 0
                                                                         })
-        # await dp.storage.set_state(chat=chat_id, user=telegram_id, state='free')
         await message.answer(f"Привет! Рад знакомству, {first_name}! Я бот проекта Ничего лишнего."
                              f"У меня есть три полезных курса, которые ты можешь пройти вместе со мной.")
         await message.answer("""Первый - Экологичный быт. Он про то, как сделать ежедневные рутины более  
@@ -59,7 +57,7 @@ async def course_chosen(message: types.Message, state: FSMContext):
                                                                        'current_day': 0,
                                                                        'last_homework': 0
                                                                        })
-    day_0 = await dp.storage.get_course_day(course_name, 0)
+    day_0 = courses.get(course_name).get(0)
     await message.answer("Отличный выбор! Отправляю вводный материал...\n" +
                          day_0.get('title') + '\n' +
                          day_0.get('description') + '\n' +
@@ -67,7 +65,7 @@ async def course_chosen(message: types.Message, state: FSMContext):
                          )
     await dp.storage.set_state(chat=chat_id, user=telegram_id, state=StudyCourse.waiting_for_homework)
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    buttons = ["Прочитано! Давай дальше :)"]
+    buttons = ["Прочитано! Давай начинать :)"]
     keyboard.add(*buttons)
     await message.answer("Нажми на кнопку, когда прочтешь вводный материал!", reply_markup=keyboard)
 

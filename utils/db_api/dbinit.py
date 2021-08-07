@@ -1,4 +1,3 @@
-from courses_config import courses
 from pymongo import MongoClient
 
 client = MongoClient("mongodb://localhost:27017/")
@@ -11,7 +10,6 @@ db['user_data'].drop()
 
 mongo_courses = db['courses']
 mongo_courses.drop()
-mongo_courses.insert_many(courses)
 
 print(db.list_collection_names())
 

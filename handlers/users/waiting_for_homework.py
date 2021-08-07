@@ -1,12 +1,11 @@
 from aiogram import types
-from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Text
 
 from loader import dp
 from states import StudyCourse
 
 
-@dp.message_handler(Text(equals="Прочитано! Давай дальше :)"), state=StudyCourse.waiting_for_homework)
+@dp.message_handler(Text(equals="Прочитано! Давай начинать :)"), state=StudyCourse.waiting_for_homework)
 async def course_chosen(message: types.Message):
     user_id = message.from_user.id
     chat_id = message.chat.id
@@ -15,7 +14,7 @@ async def course_chosen(message: types.Message):
                          reply_markup=types.ReplyKeyboardRemove())
 
 
-@dp.message_handler(Text(equals="Готово! Давай дальше :)"), state=StudyCourse.waiting_for_homework)
+@dp.message_handler(Text(equals="Готово, давай дальше :)"), state=StudyCourse.waiting_for_homework)
 async def course_chosen(message: types.Message):
     user_id = message.from_user.id
     chat_id = message.chat.id
@@ -24,7 +23,7 @@ async def course_chosen(message: types.Message):
                          reply_markup=types.ReplyKeyboardRemove())
 
 
-@dp.message_handler(Text(equals="Пропущу"), state=StudyCourse.waiting_for_homework)
+@dp.message_handler(Text(equals="Пропущу этот день"), state=StudyCourse.waiting_for_homework)
 async def course_chosen(message: types.Message):
     user_id = message.from_user.id
     chat_id = message.chat.id

@@ -217,9 +217,7 @@ class MongoStorage(BaseStorage):
         db = await self.get_db()
         cursor = db[DATA].find()
         users = []
-        print(cursor)
         for document in await cursor.to_list(length=10):
-            print(document)
             users.append({
                 'user': document.get('user'),
                 'chat': document.get('chat'),
