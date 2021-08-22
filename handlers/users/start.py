@@ -2,10 +2,10 @@ from aiogram import types
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Text
 
-from utils.courses_config import courses_dict
+from data.courses_config import courses_dict, courses
 from loader import dp
 from states import StudyCourse
-from utils.courses_config import courses
+
 
 # Хэндлер на команду /start
 @dp.message_handler(commands="start")
@@ -32,14 +32,16 @@ async def cmd_start(message: types.Message):
         свой гардероб 
         Третий курс - Цифровой минимализм. Он поможет тебе очистить цифровое пространство вокруг себя 
         и тратить меньше времени на такие залипательные вещи, как социальные сети, электронная почта и переписки  ни 
-        о чем.""")
+        о чем.
+        Каждый курс можно пройти только один раз.""")
         keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
         buttons = ["Экологичный быт", "Осознанный гардероб", "Цифровой минимализм"]
         keyboard.add(*buttons)
         await message.answer("Выбери курс, который хочешь начать", reply_markup=keyboard)
     else:
         if res['current_course'] == '':
-            await message.answer(f"Привет! Мы с тобой уже знакомы :)")
+            await message.answer(f"Привет! Я бот проекта Ничего лишнего, мы с тобой уже знакомы :)")
+            # TODO убрать из кнопок уже сданные курсы
             keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
             buttons = ["Экологичный быт", "Осознанный гардероб", "Цифровой минимализм"]
             keyboard.add(*buttons)
@@ -68,15 +70,5 @@ async def course_chosen(message: types.Message, state: FSMContext):
     buttons = ["Прочитано! Давай начинать :)"]
     keyboard.add(*buttons)
     await message.answer("Нажми на кнопку, когда прочтешь вводный материал!", reply_markup=keyboard)
-
-
-# @dp.message_handler(Text(equals="Прочитано! Давай дальше :)"), state=StudyCourse.waiting_for_homework)
-# async def course_chosen(message: types.Message):
-#     user_id = message.from_user.id
-#     chat_id = message.chat.id
-#     await dp.storage.set_state(chat=chat_id, user=user_id, state="waiting_for_task")
-#     await message.answer("Отлично! Завтра пришлю новый материал! Хорошего дня :)",
-#                          reply_markup=types.ReplyKeyboardRemove())
-
 
 
