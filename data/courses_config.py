@@ -1,3 +1,6 @@
+from . import emoji
+
+
 courses_dict = {
     'Экологичный быт': 'ecolife',
     'Осознанный гардероб': 'wardrobe',
@@ -5,6 +8,120 @@ courses_dict = {
 }
 
 courses = {
+    'ecolife': {
+        0: {
+            'title': 'День 0. Вступление.',
+            'description': '''Первый материал - вводный. В нем я расскажу о том, чем будем заниматься целых 14 дней, 
+            какие сложности могут возникнуть при расхламлении и как делить вещи на нужные и ненужные. После прочтения 
+            не забудь нажать на кнопку "Готово", чтобы завтра получить первое задание!''',
+            'url': '',
+            'new': True
+        },
+        1: {
+            'title': 'День 1. Про концепцию Zero Waste.',
+            'description': '''Сегодня предлагаю познакомиться с концепцией нулевых отходов и разобраться, 
+            почему экологичный образ жизни - это совсем не про переработку. Переработка стоит аж на четвертом месте 
+            из пяти! Давайте посмотрим, какие еще там есть пункты и какие из них подходят твоему образу жизни
+            ''' + emoji.emoji.get("hug"),
+            'url': 'http://nothing-extra.ru/part1-1-zero-waste/',
+            'new': True
+        },
+        2: {
+            'title': 'День 2. Куда сдать вторсырье?',
+            'description': '''Каждый день каждый из нас генерирует мусор. Точнее, мы привыкли думать об этих вещах 
+            как о мусоре - пластиковой упаковке, стеклянных бутылках, треснувших тарелках и прочем. Но многим из этих 
+            вещей можно дать вторую жизнь, продлить их жизненный цикл. Давай сегодня посмотрим, что и куда ты можешь 
+            отнести, чтобы уменьшить свой мусорный след. И чтобы это был не другой конец города!''',
+            'url': 'http://nothing-extra.ru/part1-2-recycling-points/',
+            'new': True
+        },
+        3: {
+            'title': 'День 3. Холодильник',
+            'description': '''Поиск ненужного предлагаю начать с холодильника. Нам не понадобятся сегодня советы по 
+            организации пространства, но вечер может стать полным открытий. Может быть вы найдете старый новый соус, 
+            может быть замороженные ягоды, а может быть просто отметите, что вместо тетрапака молока можно брать 
+            поллитровую бутылочку. Давайте скорее заглянем внуть!''',
+            'url': 'http://nothing-extra.ru/part1-3-fridge/',
+            'new': True
+        },
+        4: {
+            'title': 'День 4. Еда вне холодильника.',
+            'description': '''
+                            ''',
+            'url': 'http://nothing-extra.ru/part1-4-kitchen/',
+            'new': True
+        },
+        5: {
+            'title': 'day0',
+            'description': '''
+                            ''',
+            'url': 'http://nothing-extra.ru/part1-5-packets/',
+            'new': True
+        },
+        6: {
+            'title': 'day0',
+            'description': '''
+                            ''',
+            'url': 'http://nothing-extra.ru/part1-6-sweets/',
+            'new': True
+        },
+        7: {
+            'title': 'day0',
+            'description': '''
+                            ''',
+            'url': 'http://nothing-extra.ru/part1-7-relax/',
+            'new': True
+        },
+        8: {
+            'title': 'day0',
+            'description': '''
+                            ''',
+            'url': 'http://nothing-extra.ru/part1-mindfull-nutrition/',
+            'new': True
+        },
+        9: {
+            'title': 'day0',
+            'description': '''
+                            ''',
+            'url': 'http://nothing-extra.ru/part1-organic-cosmetic/',
+            'new': True
+        },
+        10: {
+            'title': 'day0',
+            'description': '''
+                            ''',
+            'url': 'http://nothing-extra.ru/part1-kosmetika-uhodi/',
+            'new': True
+        },
+        11: {
+            'title': 'day0',
+            'description': '''
+                            ''',
+            'url': 'http://nothing-extra.ru/part1-decorative-cosmetic/',
+            'new': True
+        },
+        12: {
+            'title': 'day0',
+            'description': '''
+                            ''',
+            'url': 'http://nothing-extra.ru/part1-chemistry/',
+            'new': True
+        },
+        13: {
+            'title': 'day0',
+            'description': '''
+                            ''',
+            'url': 'http://nothing-extra.ru/part1-pharmacy/',
+            'new': True
+        },
+        14: {
+            'title': 'day0',
+            'description': '''
+                            ''',
+            'url': 'http://nothing-extra.ru/part1-relax-14/',
+            'new': True
+        }
+    },
     'wardrobe': {
         0: {
             'title': 'День 0. Вступление.',
@@ -128,113 +245,6 @@ courses = {
             упорядочение своего гардероба. Будет здорово, если оставишь небольшой отзыв. Напиши его, пожалуйста, 
             моему создателю: <a href='https://t.me/o_lyubimova'>. А я отправляю последний материал:''',
             'url': 'http://nothing-extra.ru/day14-finish/',
-            'new': True
-        }
-    },
-    'ecolife': {
-        0: {
-            'title': 'day0',
-            'description': '''
-            ''',
-            'url': '',
-            'new': True
-        },
-        1: {
-            'title': 'day1',
-            'description': '''
-            ''',
-            'url': 'http://nothing-extra.ru/part1-1-zero-waste/',
-            'new': True
-        },
-        2: {
-            'title': 'day0',
-            'description': '''
-                            ''',
-            'url': 'http://nothing-extra.ru/part1-2-recycling-points/',
-            'new': True
-        },
-        3: {
-            'title': 'day0',
-            'description': '''
-                            ''',
-            'url': 'http://nothing-extra.ru/part1-3-fridge/',
-            'new': True
-        },
-        4: {
-            'title': 'day0',
-            'description': '''
-                            ''',
-            'url': 'http://nothing-extra.ru/part1-4-kitchen/',
-            'new': True
-        },
-        5: {
-            'title': 'day0',
-            'description': '''
-                            ''',
-            'url': 'http://nothing-extra.ru/part1-5-packets/',
-            'new': True
-        },
-        6: {
-            'title': 'day0',
-            'description': '''
-                            ''',
-            'url': 'http://nothing-extra.ru/part1-6-sweets/',
-            'new': True
-        },
-        7: {
-            'title': 'day0',
-            'description': '''
-                            ''',
-            'url': 'http://nothing-extra.ru/part1-7-relax/',
-            'new': True
-        },
-        8: {
-            'title': 'day0',
-            'description': '''
-                            ''',
-            'url': 'http://nothing-extra.ru/part1-mindfull-nutrition/',
-            'new': True
-        },
-        9: {
-            'title': 'day0',
-            'description': '''
-                            ''',
-            'url': 'http://nothing-extra.ru/part1-organic-cosmetic/',
-            'new': True
-        },
-        10: {
-            'title': 'day0',
-            'description': '''
-                            ''',
-            'url': 'http://nothing-extra.ru/part1-kosmetika-uhodi/',
-            'new': True
-        },
-        11: {
-            'title': 'day0',
-            'description': '''
-                            ''',
-            'url': 'http://nothing-extra.ru/part1-decorative-cosmetic/',
-            'new': True
-        },
-        12: {
-            'title': 'day0',
-            'description': '''
-                            ''',
-            'url': 'http://nothing-extra.ru/part1-chemistry/',
-            'new': True
-        },
-        13: {
-            'title': 'day0',
-            'description': '''
-                            ''',
-            'url': 'http://nothing-extra.ru/part1-pharmacy/',
-            'new': True
-        },
-        14: {
-            'title': 'day0',
-            'description': '''
-                            ''',
-            'url': 'http://nothing-extra.ru/part1-relax-14/',
             'new': True
         }
     },

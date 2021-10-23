@@ -1,3 +1,5 @@
+import asyncio
+
 from aiogram import executor
 
 from loader import dp, scheduler
@@ -8,6 +10,7 @@ from utils.set_bot_commands import set_default_commands
 
 async def on_startup(dispatcher):
     # Устанавливаем дефолтные команды
+    await asyncio.sleep(10)
     await set_default_commands(dispatcher)
 
     # Уведомляет про запуск

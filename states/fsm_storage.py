@@ -25,20 +25,7 @@ COLLECTIONS = (STATE, DATA, BUCKET)
 
 
 class MongoStorage(BaseStorage):
-    """
-    Mongo-based storage for FSM.
-    Usage:
-    .. code-block:: python3
-        storage = MongoStorage(host='localhost', port=27017, db_name='econothingextra_mongodb')
-        dp = Dispatcher(bot, storage=storage)
-    And need to close Mongo client connections when shutdown
-    .. code-block:: python3
-        await dp.storage.close()
-        await dp.storage.wait_closed()
-    """
-
-    def __init__(self, host='localhost', port=27017, db_name='econothingextra_mongodb', uri=None,
-                 username=None, password=None, index=True, **kwargs):
+    def __init__(self, db_name, host, port=27017, uri=None, username=None, password=None, index=True, **kwargs):
         self._host = host
         self._port = port
         self._db_name: str = db_name
@@ -49,7 +36,6 @@ class MongoStorage(BaseStorage):
 
         self._mongo: Optional[AsyncIOMotorClient] = None
         self._db: Optional[AsyncIOMotorDatabase] = None
-
         self._index = index
 
     async def get_client(self) -> AsyncIOMotorClient:
@@ -74,8 +60,8 @@ class MongoStorage(BaseStorage):
             uri += f'{self._username}:{self._password}@'
 
         # set host and port (optional)
-        uri += f'{self._host}:{self._port}' if self._host else f'localhost:{self._port}'
-
+        uri += f'{self._host}:{self._port}'
+        print(uri)
         # define and return client
         self._mongo = AsyncIOMotorClient(uri)
         return self._mongo
@@ -85,11 +71,16 @@ class MongoStorage(BaseStorage):
         Get Mongo db
         This property is awaitable.
         """
+        print('hello')
         if isinstance(self._db, AsyncIOMotorDatabase):
             return self._db
-
+        print(self._db_name, self._host, self._port)
         mongo = await self.get_client()
-        self._db = mongo.get_database(self._db_name)
+
+        if mongo.get_database(self._db_name):
+            self._db = mongo.get_database(self._db_name)
+        else:
+            self._db = mongo[self._db_name]
 
         if self._index:
             await self.apply_index(self._db)
