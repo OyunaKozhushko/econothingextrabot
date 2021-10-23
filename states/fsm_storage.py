@@ -4,7 +4,7 @@ This module has mongo storage for finite-state machine
 """
 
 from typing import Union, Dict, Optional, List, Tuple, AnyStr
-from utils.db_api import courses_config
+
 
 try:
     import pymongo
@@ -23,24 +23,9 @@ DATA = 'user_data'
 BUCKET = 'buckets'
 COLLECTIONS = (STATE, DATA, BUCKET)
 
-COURSES = 'courses'
-
 
 class MongoStorage(BaseStorage):
-    """
-    Mongo-based storage for FSM.
-    Usage:
-    .. code-block:: python3
-        storage = MongoStorage(host='localhost', port=27017, db_name='econothingextra_mongodb')
-        dp = Dispatcher(bot, storage=storage)
-    And need to close Mongo client connections when shutdown
-    .. code-block:: python3
-        await dp.storage.close()
-        await dp.storage.wait_closed()
-    """
-
-    def __init__(self, host='localhost', port=27017, db_name='econothingextra_mongodb', uri=None,
-                 username=None, password=None, index=True, **kwargs):
+    def __init__(self, db_name, host, port=27017, uri=None, username=None, password=None, index=True, **kwargs):
         self._host = host
         self._port = port
         self._db_name: str = db_name
@@ -51,17 +36,7 @@ class MongoStorage(BaseStorage):
 
         self._mongo: Optional[AsyncIOMotorClient] = None
         self._db: Optional[AsyncIOMotorDatabase] = None
-
         self._index = index
-
-    async def reset(self):
-        db = await self.get_db()
-        cols = db.list_collection_names()
-        print(db.list_collection_names())
-        for c in cols:
-            await db[c].drop()
-        db.create_collection(COURSES)
-        db[COURSES].insert_many(courses_config.courses)
 
     async def get_client(self) -> AsyncIOMotorClient:
         if isinstance(self._mongo, AsyncIOMotorClient):
@@ -85,8 +60,8 @@ class MongoStorage(BaseStorage):
             uri += f'{self._username}:{self._password}@'
 
         # set host and port (optional)
-        uri += f'{self._host}:{self._port}' if self._host else f'localhost:{self._port}'
-
+        uri += f'{self._host}:{self._port}'
+        print(uri)
         # define and return client
         self._mongo = AsyncIOMotorClient(uri)
         return self._mongo
@@ -96,11 +71,16 @@ class MongoStorage(BaseStorage):
         Get Mongo db
         This property is awaitable.
         """
+        print('hello')
         if isinstance(self._db, AsyncIOMotorDatabase):
             return self._db
-
+        print(self._db_name, self._host, self._port)
         mongo = await self.get_client()
-        self._db = mongo.get_database(self._db_name)
+
+        if mongo.get_database(self._db_name):
+            self._db = mongo.get_database(self._db_name)
+        else:
+            self._db = mongo[self._db_name]
 
         if self._index:
             await self.apply_index(self._db)
@@ -224,12 +204,18 @@ class MongoStorage(BaseStorage):
 
         return result
 
-    async def get_course_day(self, course_name: AnyStr, day: int):
+    async def find_all_users(self):
         db = await self.get_db()
-        days = await db[COURSES].find_one(filter={'name': course_name})
-        try:
-            return days.get('days')[day]
-        except IndexError as err:
-            raise err
+        cursor = db[DATA].find()
+        users = []
+        for document in await cursor.to_list(length=10):
+            users.append({
+                'user': document.get('user'),
+                'chat': document.get('chat'),
+                'current_course': document.get('data').get('current_course'),
+                'current_day': document.get('data').get('current_day'),
+                'last_homework': document.get('data').get('last_homework')
+            })
+        return users
 
 

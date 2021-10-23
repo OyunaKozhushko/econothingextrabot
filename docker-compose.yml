@@ -1,12 +1,35 @@
 version: "3"
 
 services:
-  db:
+  mongodb:
+    container_name: mongodb
     image: "mongo:latest"
+    restart: always
     volumes:
-      - data:/data
+      - mongodb:/data/db
+      - mongoconfig:/data/configdb
     ports:
-      - "27017:27017"
+      - 27017:27017
+    env_file:
+      - ".env"
+
+  mongo-express:
+    image: mongo-express
+    restart: always
+    ports:
+      - 8081:8081
+    env_file:
+      - ".env"
+
+  tgbot:
+    container_name: econothingextrabot
+    build:
+      context: .
+    command: python app.py
+    restart: always
+    env_file:
+      - ".env"
 
 volumes:
-  data:
+  mongodb:
+  mongoconfig:

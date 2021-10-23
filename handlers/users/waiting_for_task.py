@@ -1,13 +1,14 @@
-from aiogram import Dispatcher, types
-from aiogram.dispatcher import FSMContext
+from aiogram import types
 from aiogram.dispatcher.filters import Text
-from utils.db_api.courses_config import courses_dict
 from loader import dp
+from data import emoji
 
 
-@dp.message_handler(Text(equals="Ок!",
+@dp.message_handler(Text(equals="Ок, до завтра",
                          ignore_case=True), state='waiting_for_homework')
-async def course_chosen(message: types.Message):
+async def skip_extra_day(message: types.Message):
+    await message.answer('Привет! Вчерашнее задание - на два дня, так что сегодня - отдых. Хорошего тебе дня'
+                         + emoji.get('hug'), reply_markup=types.ReplyKeyboardRemove())
     return
 
 
