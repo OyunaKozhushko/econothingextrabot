@@ -212,9 +212,9 @@ class MongoStorage(BaseStorage):
             users.append({
                 'user': document.get('user'),
                 'chat': document.get('chat'),
+                'passed_courses': document.get('data').get('passed_courses'),
                 'current_course': document.get('data').get('current_course'),
-                'current_day': document.get('data').get('current_day'),
-                'last_homework': document.get('data').get('last_homework')
+                'current_day': document.get('data').get('current_day')
             })
         return users
 
