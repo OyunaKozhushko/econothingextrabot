@@ -43,10 +43,7 @@ async def course_chosen(message: types.Message):
                          reply_markup=keyboard)
 
 
-@dp.message_handler(Text(equals="Ок, до завтра"), state=StudyCourse.waiting_for_homework)
+@dp.message_handler(Text(equals="Ок, до завтра"), state=StudyCourse.waiting_for_task)
 async def course_chosen(message: types.Message):
-    buttons = ["Готово, давай дальше", "Нужен еще денёк", "Пропущу это задание"]
-    keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    keyboard.add(*buttons)
-    await message.answer("Не вопрос! Не забудь нажать кнопку, когда закончишь. Удачи сегодня " + emoji.get('hug'),
-                         reply_markup=keyboard)
+    await message.answer("Договорились! Все кнопки пришлю завтра " + emoji.get('hug'),
+                         reply_markup=types.ReplyKeyboardRemove())

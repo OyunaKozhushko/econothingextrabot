@@ -92,6 +92,7 @@ async def daily_sending(dp: Dispatcher):
             admin_logging.append(user_admin_logging)
     if len(admin_logging) > 0:
         mess = '\n'.join(admin_logging)
+        mess = '\n' + mess + 'Total: ' + str(len(admin_logging)) + ' users'
     else:
         mess = 'Сегодня никому ничего не надо'
     for admin in ADMINS:

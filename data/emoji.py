@@ -43,6 +43,6 @@ emoji = {
     "wastebasket": u"\U0001F5D1",
     "infinity": u"\U0000267E",
     "postbox": u"\U0001F4EE",
-    "memo": u"\U0001F4DD"
-
+    "memo": u"\U0001F4DD",
+    "thinking": u"\U0001F914"
 }

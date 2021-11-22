@@ -65,6 +65,8 @@ async def cmd_start(message: types.Message):
                 else:
                     await message.answer("Эх, у меня больше нет курсов, которые я могу вам предложить "
                                          + emoji.get("pensive_face"), reply_markup=types.ReplyKeyboardRemove())
+        else:
+            await message.answer("Вы сейчас проходите один из моих курсов... Если хотите начать другой, то сначала выполните команду /stop, потом снова /start. Я предложу вам оставшиеся непройденными курсы. Но пройти еще раз текущий курс будет нельзя!")
 
 
 @dp.message_handler(Text(equals="Напомни-ка, что у тебя за мини-курсы", ignore_case=True), state=None)
@@ -146,7 +148,10 @@ async def end_course(message: types.Message):
         keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
         keyboard.add(*buttons)
         await message.answer("И вам большое спасибо за прохождение курса " + emoji.get('hug') + '\n' +
-                             "У меня есть еще два интересных курса. Если готовы их пройти, то жмите на понравившийся курс. Если пока неинтересно - жмите на кнопку 'Пока не хочу' "
+                             ' Если есть желание, можете отправить небольшое пожертвование на карту <a href="https://www.tinkoff.ru/cf/4vBDx0qBuSi">Тинькофф по этой ссылке</a>'
+                             + ' Сумма абсолютно любая, на ваше усмотрение ' + emoji.get('love_you_gesture'),
+                             reply_markup=types.ReplyKeyboardRemove())
+        await message.answer("Еще у меня есть два других интересных курса. Если готовы их пройти, то жмите на понравившийся курс. Если пока неинтересно - жмите на кнопку 'Пока не хочу' "
                              + emoji.get('down_arrow'), reply_markup=keyboard)
     else:
         if len(buttons) == 1:
@@ -155,14 +160,20 @@ async def end_course(message: types.Message):
             keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
             keyboard.add(*buttons)
             await message.answer("И вам большое спасибо за прохождение курса " + emoji.get('hug') + '\n' +
-                                 "У меня есть еще один интересный курс. Если готовы пройти, то жмите на кнопку с курсом. Если пока неинтересно - жмите на кнопку 'Пока не хочу' "
+                                ' Если есть желание, можете отправить небольшое пожертвование на карту <a href="https://www.tinkoff.ru/cf/4vBDx0qBuSi">Тинькофф по этой ссылке</a>'
+                                + ' Сумма абсолютно любая, на ваше усмотрение ' + emoji.get('love_you_gesture'),
+                                 reply_markup=types.ReplyKeyboardRemove())
+            await message.answer("У меня есть еще один интересный курс. Если готовы пройти, то жмите на кнопку с курсом. Если пока неинтересно - жмите на кнопку 'Пока не хочу' "
                                  + emoji.get('down_arrow'), reply_markup=keyboard)
         else:
             buttons = ["Счастливо!"]
             keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
             keyboard.add(*buttons)
             await message.answer("И вам большое спасибо за прохождение курса " + emoji.get('hug') + '\n' +
-                                 "У меня больше нет непройденных вами курсов! Удачи вам во всех начинаниях!",
+                                 ' Если есть желание, можете отправить небольшое пожертвование на карту <a href="https://www.tinkoff.ru/cf/4vBDx0qBuSi">Тинькофф по этой ссылке</a>'
+                                 + ' Сумма абсолютно любая, на ваше усмотрение ' + emoji.get('love_you_gesture'),
+                                 reply_markup=types.ReplyKeyboardRemove())
+            await message.answer("У меня больше нет непройденных вами курсов! Удачи вам во всех начинаниях!",
                                  reply_markup=keyboard)
 
 
