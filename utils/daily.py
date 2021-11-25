@@ -30,7 +30,7 @@ async def daily_sending(dp: Dispatcher):
                 if new_day == 14:
 
                     passed_courses = user.get('passed_courses')
-                    if passed_courses == '':
+                    if len(passed_courses) == 0:
                         passed_courses = user.get('current_course')
                     else:
                         passed_courses = passed_courses + ',' + user.get('current_course')
@@ -42,12 +42,13 @@ async def daily_sending(dp: Dispatcher):
                     await dp.storage.set_data(chat=user.get('chat'), user=user.get('user'),
                                               data={'passed_courses': passed_courses,
                                                     'current_course': '',
-                                                    'current_day': 0
+                                                    'current_day': 0,
+                                                    'name': user.get('name')
                                                     })
                     await dp.bot.send_message(user.get('user'), title + '\n' + description + '\n' + url,
                                               reply_markup=keyboard,
                                               disable_web_page_preview=True)
-                    user_admin_logging = str(user.get('user')) + ' finished course ' + user.get('current_course')
+                    user_admin_logging = str(user.get('user')) + ' ' + str(user.get('name')) + ' finished course ' + user.get('current_course')
                 # не конец курса
                 else:
                     await dp.storage.set_state(chat=user.get('chat'), user=user.get('user'),
@@ -55,27 +56,29 @@ async def daily_sending(dp: Dispatcher):
                     await dp.storage.set_data(chat=user.get('chat'), user=user.get('user'),
                                               data={'passed_courses': user.get('passed_courses'),
                                                     'current_course': user.get('current_course'),
-                                                    'current_day': user.get('current_day') + 1
+                                                    'current_day': user.get('current_day') + 1,
+                                                    'name': user.get('name')
                                                     })
                     buttons = ["Готово, давай дальше", "Нужен еще денёк", "Пропущу это задание"]
                     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
                     keyboard.add(*buttons)
                     await dp.bot.send_message(user.get('user'), title + '\n' + description + '\n' + url,
                                               reply_markup=keyboard)
-                    user_admin_logging = str(user.get('user')) + ' is sent ' + str(new_day) + ' day in course ' + user.get('current_course')
+                    user_admin_logging = str(user.get('user')) + ' ' + str(user.get('name')) + ' is sent ' + str(new_day) + ' day in course ' + user.get('current_course')
             # не нужно сдавать домашку, таких в конце курсов нет
             else:
                 await dp.storage.set_data(chat=user.get('chat'), user=user.get('user'),
                                           data={'passed_courses': user.get('passed_courses'),
                                                 'current_course': user.get('current_course'),
-                                                'current_day': user.get('current_day') + 1
+                                                'current_day': user.get('current_day') + 1,
+                                                'name': user.get('name')
                                                 })
                 keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
                 buttons = ["Ок, до завтра"]
                 keyboard.add(*buttons)
                 await dp.bot.send_message(user.get('user'), title + '\n' + description + '\n' + url,
                                           reply_markup=keyboard)
-                user_admin_logging = str(user.get('user')) + ' is sent ' + str(new_day) + ' day in course ' + user.get('current_course')
+                user_admin_logging = str(user.get('user')) + ' ' + str(user.get('name')) + ' is sent ' + str(new_day) + ' day in course ' + user.get('current_course')
         # юзер не сдал задание
         else:
             if user_state == 'StudyCourse:waiting_for_homework':
@@ -85,16 +88,17 @@ async def daily_sending(dp: Dispatcher):
                 answer = random.choice(answers_try)
                 await dp.bot.send_message(user.get('user'), answer,
                                           reply_markup=keyboard)
-                user_admin_logging = str(user.get('user')) + ' did not pass ' \
-                                     + str(user.get('current_day')) + ' day in course ' + user.get('current_course')
+                user_admin_logging = str(user.get('user')) + ' ' + str(user.get('name')) + ' did not pass ' + str(user.get('current_day')) + ' day in course ' + user.get('current_course')
 
         if len(user_admin_logging) > 0:
             admin_logging.append(user_admin_logging)
     if len(admin_logging) > 0:
         mess = '\n'.join(admin_logging)
-        mess = '\n' + mess + 'Total: ' + str(len(admin_logging)) + ' users'
+        mess_total = 'Total: ' + str(len(admin_logging)) + ' users'
     else:
         mess = 'Сегодня никому ничего не надо'
+        mess_total = 'Total: 0'
     for admin in ADMINS:
         await dp.bot.send_message(admin, mess)
+        await dp.bot.send_message(admin, mess_total)
 

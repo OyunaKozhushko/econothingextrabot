@@ -214,7 +214,8 @@ class MongoStorage(BaseStorage):
                 'chat': document.get('chat'),
                 'passed_courses': document.get('data').get('passed_courses'),
                 'current_course': document.get('data').get('current_course'),
-                'current_day': document.get('data').get('current_day')
+                'current_day': document.get('data').get('current_day'),
+                'name': document.get('data').get('name')
             })
         return users
 

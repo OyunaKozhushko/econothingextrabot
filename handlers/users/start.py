@@ -13,38 +13,29 @@ from data.emoji import emoji
 @dp.message_handler(commands="start", state="*")
 async def cmd_start(message: types.Message):
     first_name = message.from_user.first_name
+    last_name = message.from_user.last_name
     telegram_id = message.from_user.id
     chat_id = message.chat.id
     user_data = await dp.storage.get_data(chat=chat_id, user=telegram_id)
     if not user_data:
         await dp.storage.set_data(chat=chat_id, user=telegram_id, data={'passed_courses': '',
                                                                         'current_course': '',
-                                                                        'current_day': 0
+                                                                        'current_day': 0,
+                                                                        'name': first_name + ' ' + last_name,
                                                                         })
         await message.answer(f"Привет! Рад знакомству, {first_name}" + emoji.get("hug") +
-                             "Я бот проекта Ничего лишнего. У меня есть три полезных курса, которые ты можешь пройти "
-                             "вместе со мной. Каждый курс можно пройти только один раз, длительность курса - 2 "
-                             "недели, но ты можешь делать перерыв, когда захочешь. Каждый день я буду присылать "
-                             "задание, в нем будет и полезный материал, и полезное задание "
+                             "Я бот проекта Ничего лишнего. У меня есть три полезных курса, которые ты можешь пройти вместе со мной. Каждый курс можно пройти только один раз, длительность курса - 2 недели, но ты можешь делать перерыв, когда захочешь. Каждый день я буду присылать задание, в нем будет и полезный материал, и полезное задание "
                              + emoji.get("relaxed_face"), reply_markup=types.ReplyKeyboardRemove())
-        await message.answer("""Первый курс - <strong>Экологичный быт</strong>. Он про то, как сделать ежедневные 
-        рутины более экологичными: запустим раздельный сбор отходов, разберемся с холодильником, шкафчиками на кухне 
-        и в ванной, познакомимся с натуральной косметикой и избавимся от лишнего в аптечке. А еще удет много идей по 
-        организации пространства!""")
-        await message.answer("""Второй - <strong>Осознанный гардероб</strong>. Просто удивительно, как массмаркет 
-        изменил наши отношения с одеждой. Теперь у нас очень много вещей - и очень мало среди них тех, которые мы 
-        носим. Второй курс поможет разобраться, какие нужными, а какие нет, как экологично избавиться от ненужного, 
-        и как осознанно разобрать свой гардероб.""")
-        await message.answer("""Третий курс - <strong>Цифровой минимализм</strong>. Он поможет тебе очистить цифровое 
-        пространство вокруг себя и тратить меньше времени на такие залипательные вещи, как социальные сети, 
-        электронная почта и переписки ни о чем.""")
+        await message.answer("""Первый курс - <strong>Экологичный быт</strong>. Он про то, как сделать ежедневные рутины более экологичными: запустим раздельный сбор отходов, разберемся с холодильником, шкафчиками на кухне и в ванной, познакомимся с натуральной косметикой и избавимся от лишнего в аптечке. А еще будет много идей по организации пространства!""")
+        await message.answer("""Второй - <strong>Осознанный гардероб</strong>. Просто удивительно, как массмаркет изменил наши отношения с одеждой. Теперь у нас очень много вещей - и очень мало среди них тех, которые мы носим. Второй курс поможет разобраться, какие нужными, а какие нет, как экологично избавиться от ненужного, и как осознанно разобрать свой гардероб.""")
+        await message.answer("""Третий курс - <strong>Цифровой минимализм</strong>. Он поможет тебе очистить цифровое пространство вокруг себя и тратить меньше времени на такие залипательные вещи, как социальные сети, электронная почта и переписки ни о чем.""")
         keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
         buttons = ["Экологичный быт", "Осознанный гардероб", "Цифровой минимализм"]
         keyboard.add(*buttons)
         await message.answer("Выбери курс, который хочешь начать " + emoji.get("down_arrow"), reply_markup=keyboard)
     else:
         if user_data.get("current_course") == '':
-            await message.answer(f"Привет! Я бот проекта Ничего лишнего, мы с тобой уже знакомы " +
+            await message.answer(f"Привет! Я бот проекта Ничего лишнего, мы с вами уже знакомы " +
                                  emoji.get("relieved_face"),
                                  reply_markup=types.ReplyKeyboardRemove())
             passed_courses = user_data.get("passed_courses").split(',')
@@ -115,7 +106,7 @@ async def course_chosen(message: types.Message, state: FSMContext):
         'passed_courses': user_data.get("passed_courses"),
         'current_course': course_name,
         'current_day': 0,
-        'last_homework': 0
+        'name': user_data.get("name")
     })
     day_0 = courses.get(course_name).get(0)
     await message.answer("Отличный выбор! Отправляю вводный материал...\n" +
@@ -160,8 +151,7 @@ async def end_course(message: types.Message):
             keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
             keyboard.add(*buttons)
             await message.answer("И вам большое спасибо за прохождение курса " + emoji.get('hug') + '\n' +
-                                ' Если есть желание, можете отправить небольшое пожертвование на карту <a href="https://www.tinkoff.ru/cf/4vBDx0qBuSi">Тинькофф по этой ссылке</a>'
-                                + ' Сумма абсолютно любая, на ваше усмотрение ' + emoji.get('love_you_gesture'),
+                                """ Если есть желание, можете отправить небольшое пожертвование на карту <a href="https://www.tinkoff.ru/cf/4vBDx0qBuSi">Тинькофф по этой ссылке</a>. Сумма абсолютно любая, на ваше усмотрение """ + emoji.get('love_you_gesture'),
                                  reply_markup=types.ReplyKeyboardRemove())
             await message.answer("У меня есть еще один интересный курс. Если готовы пройти, то жмите на кнопку с курсом. Если пока неинтересно - жмите на кнопку 'Пока не хочу' "
                                  + emoji.get('down_arrow'), reply_markup=keyboard)
@@ -170,8 +160,7 @@ async def end_course(message: types.Message):
             keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
             keyboard.add(*buttons)
             await message.answer("И вам большое спасибо за прохождение курса " + emoji.get('hug') + '\n' +
-                                 ' Если есть желание, можете отправить небольшое пожертвование на карту <a href="https://www.tinkoff.ru/cf/4vBDx0qBuSi">Тинькофф по этой ссылке</a>'
-                                 + ' Сумма абсолютно любая, на ваше усмотрение ' + emoji.get('love_you_gesture'),
+                                 """ Если есть желание, можете отправить небольшое пожертвование на карту <a href="https://www.tinkoff.ru/cf/4vBDx0qBuSi">Тинькофф по этой ссылке</a>. Сумма абсолютно любая, на ваше усмотрение """ + emoji.get('love_you_gesture'),
                                  reply_markup=types.ReplyKeyboardRemove())
             await message.answer("У меня больше нет непройденных вами курсов! Удачи вам во всех начинаниях!",
                                  reply_markup=keyboard)
