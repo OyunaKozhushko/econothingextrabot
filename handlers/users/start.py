@@ -12,8 +12,15 @@ from data.emoji import emoji
 # Хэндлер на команду /start
 @dp.message_handler(commands="start", state="*")
 async def cmd_start(message: types.Message):
+
     first_name = message.from_user.first_name
     last_name = message.from_user.last_name
+    if first_name:
+        name = first_name
+    else:
+        name = ''
+    if last_name:
+        name = name + ' ' + last_name
     telegram_id = message.from_user.id
     chat_id = message.chat.id
     user_data = await dp.storage.get_data(chat=chat_id, user=telegram_id)
@@ -21,7 +28,7 @@ async def cmd_start(message: types.Message):
         await dp.storage.set_data(chat=chat_id, user=telegram_id, data={'passed_courses': '',
                                                                         'current_course': '',
                                                                         'current_day': 0,
-                                                                        'name': first_name + ' ' + last_name,
+                                                                        'name': name,
                                                                         })
         await message.answer(f"Привет! Рад знакомству, {first_name}" + emoji.get("hug") +
                              "Я бот проекта Ничего лишнего. У меня есть три полезных курса, которые ты можешь пройти вместе со мной. Каждый курс можно пройти только один раз, длительность курса - 2 недели, но ты можешь делать перерыв, когда захочешь. Каждый день я буду присылать задание, в нем будет и полезный материал, и полезное задание "
