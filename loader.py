@@ -10,5 +10,5 @@ storage = MongoStorage(db_name=config.db_name, host=config.db_host, username=con
 
 dp = Dispatcher(bot, storage=storage)
 scheduler = AsyncIOScheduler()
-scheduler.add_job(daily_sending, "cron", hour=18, minute=42, args=(dp,), timezone='UTC')
+scheduler.add_job(daily_sending, "cron", hour=6, minute=10, args=(dp,), timezone='UTC')
 # scheduler.add_job(daily_sending, "interval", seconds=10, args=(dp,))
