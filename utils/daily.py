@@ -15,7 +15,6 @@ async def daily_sending(dp: Dispatcher):
         user_admin_logging = ''
         course = courses.get(user.get('current_course'))
         user_state = await dp.storage.get_state(chat=user.get('chat'), user=user.get('user'))
-        # user_data = await dp.storage.get_data(chat=user.get('chat'), user=user.get('user'))
         # юзер сдал задание
         if user_state == 'StudyCourse:waiting_for_task':
             new_day = user.get('current_day') + 1
@@ -37,59 +36,73 @@ async def daily_sending(dp: Dispatcher):
                     buttons = ["Супер, спасибо за курс!"]
                     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
                     keyboard.add(*buttons)
-                    await dp.storage.set_state(chat=user.get('chat'), user=user.get('user'),
-                                               state=None)
-                    await dp.storage.set_data(chat=user.get('chat'), user=user.get('user'),
-                                              data={'passed_courses': passed_courses,
-                                                    'current_course': '',
-                                                    'current_day': 0,
-                                                    'name': user.get('name')
-                                                    })
-                    await dp.bot.send_message(user.get('user'), title + '\n' + description + '\n' + url,
-                                              reply_markup=keyboard,
-                                              disable_web_page_preview=True)
-                    user_admin_logging = str(user.get('user')) + ' ' + str(user.get('name')) + ' finished course ' + user.get('current_course')
+                    try:
+                        await dp.storage.set_state(chat=user.get('chat'), user=user.get('user'),
+                                                   state=None)
+                        await dp.storage.set_data(chat=user.get('chat'), user=user.get('user'),
+                                                  data={'passed_courses': passed_courses,
+                                                        'current_course': '',
+                                                        'current_day': 0,
+                                                        'name': user.get('name')
+                                                        })
+                        await dp.bot.send_message(user.get('user'), title + '\n' + description + '\n' + url,
+                                                  reply_markup=keyboard,
+                                                  disable_web_page_preview=True)
+                        user_admin_logging = str(user.get('user')) + ' ' + str(user.get('name')) + ' finished course ' + user.get('current_course')
+                    except Exception as e:
+                        user_admin_logging = str(user.get('user')) + ' get exception ' + str(e)
                 # не конец курса
                 else:
-                    await dp.storage.set_state(chat=user.get('chat'), user=user.get('user'),
-                                               state=StudyCourse.waiting_for_homework)
+                    try:
+                        await dp.storage.set_state(chat=user.get('chat'), user=user.get('user'),
+                                                   state=StudyCourse.waiting_for_homework)
+                        await dp.storage.set_data(chat=user.get('chat'), user=user.get('user'),
+                                                  data={'passed_courses': user.get('passed_courses'),
+                                                        'current_course': user.get('current_course'),
+                                                        'current_day': user.get('current_day') + 1,
+                                                        'name': user.get('name')
+                                                        })
+                        buttons = ["Готово, давай дальше", "Нужен еще денёк", "Пропущу это задание"]
+                        keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
+                        keyboard.add(*buttons)
+                        await dp.bot.send_message(user.get('user'), title + '\n' + description + '\n' + url,
+                                                  reply_markup=keyboard)
+                        user_admin_logging = str(user.get('user')) + ' ' + str(user.get('name')) + ' is sent ' \
+                                             + str(new_day) + ' day in course ' + user.get('current_course')
+                    except Exception as e:
+                        user_admin_logging = str(user.get('user')) + ' get exception ' + str(e)
+            # не нужно сдавать домашку, таких в конце курсов нет
+            else:
+                try:
                     await dp.storage.set_data(chat=user.get('chat'), user=user.get('user'),
                                               data={'passed_courses': user.get('passed_courses'),
                                                     'current_course': user.get('current_course'),
                                                     'current_day': user.get('current_day') + 1,
                                                     'name': user.get('name')
                                                     })
-                    buttons = ["Готово, давай дальше", "Нужен еще денёк", "Пропущу это задание"]
                     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
+                    buttons = ["Ок, до завтра"]
                     keyboard.add(*buttons)
                     await dp.bot.send_message(user.get('user'), title + '\n' + description + '\n' + url,
                                               reply_markup=keyboard)
-                    user_admin_logging = str(user.get('user')) + ' ' + str(user.get('name')) + ' is sent ' + str(new_day) + ' day in course ' + user.get('current_course')
-            # не нужно сдавать домашку, таких в конце курсов нет
-            else:
-                await dp.storage.set_data(chat=user.get('chat'), user=user.get('user'),
-                                          data={'passed_courses': user.get('passed_courses'),
-                                                'current_course': user.get('current_course'),
-                                                'current_day': user.get('current_day') + 1,
-                                                'name': user.get('name')
-                                                })
-                keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
-                buttons = ["Ок, до завтра"]
-                keyboard.add(*buttons)
-                await dp.bot.send_message(user.get('user'), title + '\n' + description + '\n' + url,
-                                          reply_markup=keyboard)
-                user_admin_logging = str(user.get('user')) + ' ' + str(user.get('name')) + ' is sent ' + str(new_day) + ' day in course ' + user.get('current_course')
+                    user_admin_logging = str(user.get('user')) + ' ' + str(user.get('name')) + ' is sent ' \
+                                         + str(new_day) + ' day in course ' + user.get('current_course')
+                except Exception as e:
+                    user_admin_logging = str(user.get('user')) + ' get exception ' + str(e)
         # юзер не сдал задание
         else:
             if user_state == 'StudyCourse:waiting_for_homework':
-                keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
-                buttons = ["Готово, давай дальше", "Нужен еще денёк", "Пропущу это задание"]
-                keyboard.add(*buttons)
-                answer = random.choice(answers_try)
-                await dp.bot.send_message(user.get('user'), answer,
-                                          reply_markup=keyboard)
-                user_admin_logging = str(user.get('user')) + ' ' + str(user.get('name')) + ' did not pass ' + str(user.get('current_day')) + ' day in course ' + user.get('current_course')
-
+                try:
+                    keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
+                    buttons = ["Готово, давай дальше", "Нужен еще денёк", "Пропущу это задание"]
+                    keyboard.add(*buttons)
+                    answer = random.choice(answers_try)
+                    await dp.bot.send_message(user.get('user'), answer,
+                                              reply_markup=keyboard)
+                    user_admin_logging = str(user.get('user')) + ' ' + str(user.get('name')) + ' did not pass '\
+                                         + str(user.get('current_day')) + ' day in course ' + user.get('current_course')
+                except Exception as e:
+                    user_admin_logging = str(user.get('user')) + ' get exception ' + str(e)
         if len(user_admin_logging) > 0:
             admin_logging.append(user_admin_logging)
     if len(admin_logging) > 0:
