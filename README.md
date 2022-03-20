@@ -5,9 +5,9 @@ Using the bot you can take three 14-days courses about ecological lifestyle.
 
 What the bot can do:
 - Offer three cources: Ecolife, Wardrobe, Digital Minimalism
-- Send daily a new paper from the website https://nothing-extra.ru/ (created by Wordpress)
+- Send daily a new paper and task from the website https://nothing-extra.ru/ (created on Wordpress, materials by me)
 - Ask if paper mark as completed (if the previous paper is not marked as completed, the bot will not send new one)
-- Send encouraging messages after completing
+- Send encouraging messages after completing tasks
 - Mark courses finished
 - Handle popular commands: /start, /stop, /help
 
